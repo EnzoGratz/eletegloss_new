@@ -29,7 +29,7 @@ public class KundenFormular {
             // Eingabefelder für Vorname, Nachname, Telefonnummer und E-Mail-Adresse
             vorname.requestFocus();
             // Fokus auf das Vorname-Feld setzen, damit der Nutzer direkt tippen kann
-            int auswahl = JOptionPane.showConfirmDialog(null, panel, "🆕 Neukunde registrieren",
+            int auswahl = JOptionPane.showConfirmDialog(null, panel, "Neukunde registrieren",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             if (auswahl != JOptionPane.OK_OPTION) break;
@@ -51,12 +51,12 @@ public class KundenFormular {
             }
             // Hier wird überprüft, ob alle Felder ausgefüllt sind.
 
-            if (!Pattern.matches("^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$", e)) {
+            if (!Pattern.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$", e)) {
                 JOptionPane.showMessageDialog(null, "📧 Ungültige E-Mail-Adresse.");
                 continue;
             }
             // Hier wird überprüft, ob die E-Mail-Adresse dem Muster entspricht.
-            if (!Pattern.matches("^[+\d][\d\s/-]{5,}$", t)) {
+            if (!Pattern.matches("^\\+?[\\d\\s/-]{5,}$", t)) {
                 JOptionPane.showMessageDialog(null, "📱 Ungültige Telefonnummer.");
                 continue;
             }
@@ -75,7 +75,7 @@ public class KundenFormular {
                 stmt.setString(3, t);
                 stmt.setString(4, e);
                 stmt.executeUpdate();
-                JOptionPane.showMessageDialog(null, "✅ Kunde "" + v + " " + n + "" erfolgreich registriert.");
+                JOptionPane.showMessageDialog(null, "✅ Kunde \"" + v + " " + n + "\" erfolgreich registriert.");
                 break;
             } catch (SQLException ex) {
                 ex.printStackTrace();
