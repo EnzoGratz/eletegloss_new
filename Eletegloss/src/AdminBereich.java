@@ -16,7 +16,7 @@ public class AdminBereich {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
-        // Frame-Einstellungen
+        // Frame(Rahmen)-Einstellungen
 
         JTabbedPane tabs = new JTabbedPane();
 
