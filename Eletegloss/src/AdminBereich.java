@@ -1,142 +1,169 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
 import java.sql.*;
 
+/**
+ * Admin‑GUI für EliteGloss.
+ * <p>
+ * Zeigt alle Kunden und Aufträge aus der Datenbank <code>elitegloss_db</code> an
+ * und erlaubt das Filtern nach Auftragsdatum.
+ */
 public class AdminBereich {
-    private static DefaultTableModel kundenModel = new DefaultTableModel(new String[]{"Vorname", "Nachname", "E-Mail", "Telefon"}, 0);
-    private static DefaultTableModel auftragModel = new DefaultTableModel(new String[]{"Kunde", "Datum", "Kennzeichen", "Marke", "Modell", "Beschreibung"}, 0);
-    private static DefaultListModel<String> pdfListModel = new DefaultListModel<>();
-    // Datenmodelle für Tabellen und Listen
 
-    public static void zeige() { 
+    /** Spalten für die Kundentabelle */
+    private static final DefaultTableModel KUNDEN_MODEL = new DefaultTableModel(
+            new String[]{"Vorname", "Nachname", "E‑Mail", "Telefon"}, 0) {
+        @Override public boolean isCellEditable(int r, int c) {return false;}
+    };
+
+    /** Spalten für die Auftragstabelle */
+    private static final DefaultTableModel AUFTRAG_MODEL = new DefaultTableModel(
+            new String[]{"Kunde", "Datum", "Paket", "Zusatzleistungen", "Preis (€)"}, 0) {
+        @Override public boolean isCellEditable(int r, int c) {return false;}
+    };
+
+    /** Liste aller im Ordner gefundenen PDFs */
+    private static final DefaultListModel<String> PDF_LIST_MODEL = new DefaultListModel<>();
+
+    private AdminBereich() { /* Utility‑Klasse */ }
+
+    // ======================= GUI ======================= //
+
+    public static void zeige() {
         JFrame frame = new JFrame("EliteGloss – Adminbereich");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
-        // Frame(Rahmen)-Einstellungen
 
+        /* Tabs */
         JTabbedPane tabs = new JTabbedPane();
+        tabs.addTab("📋 Kunden",     new JScrollPane(new JTable(KUNDEN_MODEL)));
+        tabs.addTab("🧾 Aufträge",    new JScrollPane(new JTable(AUFTRAG_MODEL)));
+        tabs.addTab("📄 PDFs",        new JScrollPane(new JList<>(PDF_LIST_MODEL)));
 
-        // Kunden-Tabelle
-        JTable kundenTabelle = new JTable(kundenModel);
-        JScrollPane kundenScroll = new JScrollPane(kundenTabelle);
-        tabs.addTab("📋 Kunden", kundenScroll);
-        // Kunden-Tabelle
-
-        // Aufträge-Tabelle
-        JTable auftragTabelle = new JTable(auftragModel);
-        JScrollPane auftragScroll = new JScrollPane(auftragTabelle);
-        tabs.addTab("🧾 Aufträge", auftragScroll);
-        // Aufträge-Tabelle
-
-        // PDFs
-        JList<String> pdfList = new JList<>(pdfListModel);
-        JScrollPane pdfScroll = new JScrollPane(pdfList);
-        tabs.addTab("📄 PDFs", pdfScroll);
-        // PDFs
-
-        // Filter-Panel
+        /* Filter */
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField datumFilter = new JTextField(10);
+        JTextField datumField = new JTextField(10);
         JButton filterBtn = new JButton("Nach Datum filtern");
-        filterBtn.addActionListener(e -> ladeAuftraegeNachDatum(datumFilter.getText()));
+        filterBtn.addActionListener(e -> ladeAuftraegeNachDatum(datumField.getText().trim()));
         filterPanel.add(new JLabel("Datum (YYYY-MM-DD):"));
-        filterPanel.add(datumFilter);
+        filterPanel.add(datumField);
         filterPanel.add(filterBtn);
 
-        frame.add(tabs, BorderLayout.CENTER);
         frame.add(filterPanel, BorderLayout.NORTH);
-        // Filter-Panel
-        // Layout-Einstellungen
+        frame.add(tabs,        BorderLayout.CENTER);
 
-        // Daten laden
+        /* Daten initial laden */
         ladeDaten();
         ladePDFs();
 
         frame.setVisible(true);
     }
 
+    //Lädt alle Kunden und Aufträge in die Models.
+
     private static void ladeDaten() {
-        kundenModel.setRowCount(0);
-        auftragModel.setRowCount(0);
+        KUNDEN_MODEL.setRowCount(0);
+        AUFTRAG_MODEL.setRowCount(0);
 
         try (Connection conn = DBVerbindung.verbinde()) {
             if (conn == null) {
-                JOptionPane.showMessageDialog(null, "Verbindung zur Datenbank fehlgeschlagen.");
-                return;
+                JOptionPane.showMessageDialog(null, "❌ Verbindung zur Datenbank fehlgeschlagen.");
+                return; // Macht dann gar nicht weiter mit der Methode. Hört hier auf!
             }
 
-            // Kunden
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM kunden")) {
+            //Kunden
+            try (Statement st = conn.createStatement();
+                 ResultSet rs = st.executeQuery("SELECT vorname, nachname, email, telefonnummer FROM kunden ORDER BY nachname, vorname")) {
+
                 while (rs.next()) {
-                    kundenModel.addRow(new Object[]{
-                        rs.getString("vorname"),
-                        rs.getString("nachname"),
-                        rs.getString("email"),
-                        rs.getString("telefon")
+                    KUNDEN_MODEL.addRow(new Object[]{
+                            rs.getString("vorname"),
+                            rs.getString("nachname"),
+                            rs.getString("email"),
+                            rs.getString("telefonnummer")
                     });
                 }
             }
-            //Verbindung zur Datenbank, zeigt ob die Verbindung erfolgreich war
-            if (kundenModel.getRowCount() == 0) {
+
+            if (KUNDEN_MODEL.getRowCount() == 0) {
                 JOptionPane.showMessageDialog(null, "Keine Kunden gefunden.");
             }
-            //Zeigt an, wenn keine Kunden in der Datenbank gefunden wurden
-            // Aufträge
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM auftraege")) {
+
+            //Aufträge
+            final String sql = "SELECT k.vorname, k.nachname, a.datum, a.paket, a.zusatzleistungen, a.preis " +
+                    "FROM auftraege a " +
+                    "JOIN kunden k ON a.kunde_id = k.id " +
+                    "ORDER BY a.datum DESC";
+            try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
                 while (rs.next()) {
-                    auftragModel.addRow(new Object[]{
-                        rs.getString("kunde"),
-                        rs.getString("datum"),
-                        rs.getString("kennzeichen"),
-                        rs.getString("marke"),
-                        rs.getString("modell"),
-                        rs.getString("beschreibung")
+                    String kundeName = rs.getString("vorname") + " " + rs.getString("nachname");
+                    AUFTRAG_MODEL.addRow(new Object[]{
+                            kundeName,
+                            rs.getDate("datum").toString(),
+                            rs.getString("paket"),
+                            rs.getString("zusatzleistungen"),
+                            rs.getBigDecimal("preis")
                     });
                 }
             }
-            //Man legt alles fest was abgerufen werden soll, in diesem Fall die Aufträge
-            if (auftragModel.getRowCount() == 0) {
+
+            if (AUFTRAG_MODEL.getRowCount() == 0) {
                 JOptionPane.showMessageDialog(null, "Keine Aufträge gefunden.");
             }
-            //Zeigt an, wenn keine Aufträge in der Datenbank gefunden wurden
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Fehler beim Laden der Daten:\n" + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Fehler beim Laden der Daten:\n" + ex.getMessage());
         }
     }
 
+    /**
+     * Lädt nur Aufträge eines bestimmten Datums (YYYY-MM-DD) in die Tabelle.
+     */
     private static void ladeAuftraegeNachDatum(String datum) {
-        auftragModel.setRowCount(0);
+        AUFTRAG_MODEL.setRowCount(0);
+        if (datum.isBlank()) {
+            ladeDaten(); // wenn leer => alles
+            return;
+        }
 
+        String sql = "SELECT k.vorname, k.nachname, a.datum, a.paket, a.zusatzleistungen, a.preis " +
+                "FROM auftraege a JOIN kunden k ON a.kunde_id = k.id WHERE a.datum = ?";
         try (Connection conn = DBVerbindung.verbinde();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM auftraege WHERE datum = ?")) {
-            stmt.setString(1, datum);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                auftragModel.addRow(new Object[]{
-                    rs.getString("kunde"),
-                    rs.getString("datum"),
-                    rs.getString("kennzeichen"),
-                    rs.getString("marke"),
-                    rs.getString("modell"),
-                    rs.getString("beschreibung")
-                });
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, datum);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AUFTRAG_MODEL.addRow(new Object[]{
+                            rs.getString("vorname") + " " + rs.getString("nachname"),
+                            rs.getDate("datum").toString(),
+                            rs.getString("paket"),
+                            rs.getString("zusatzleistungen"),
+                            rs.getBigDecimal("preis")
+                    });
+                }
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Fehler bei der Filterung:\n" + e.getMessage());
+
+            if (AUFTRAG_MODEL.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(null, "Keine Aufträge für " + datum + " gefunden.");
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Fehler bei der Filterung:\n" + ex.getMessage());
         }
     }
-    // Zeigt an wenn ein Fehler beim Laden der Daten auftritt
+
+    /**
+     * Sucht alle PDF‑Dateien im aktuellen Verzeichnis und listet sie auf.
+     */
     private static void ladePDFs() {
-        pdfListModel.clear();
-        File[] pdfs = new File(".").listFiles((d, name) -> name.toLowerCase().endsWith(".pdf"));
+        PDF_LIST_MODEL.clear();
+        File[] pdfs = new File(".").listFiles((dir, name) -> name.toLowerCase().endsWith(".pdf"));
         if (pdfs != null) {
-            for (File pdf : pdfs) {
-                pdfListModel.addElement(pdf.getName());
-            }
+            for (File pdf : pdfs) PDF_LIST_MODEL.addElement(pdf.getName());
         }
     }
 }
