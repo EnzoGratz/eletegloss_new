@@ -17,7 +17,7 @@ public class KundenLogin {
         kundenModel.addElement("Bitte wählen ...");
 
         try (
-            PreparedStatement stmt = conn.prepareStatement("SELECT id, vorname, nachname FROM kunden ORDER BY nachname, vorname");
+            PreparedStatement stmt = conn.prepareStatement("SELECT id, vorname, nachname FROM kunden ORDER BY id");
             ResultSet rs = stmt.executeQuery()
         ) {
             while (rs.next()) {
@@ -26,7 +26,7 @@ public class KundenLogin {
                 kundenModel.addElement(id + " – " + name);
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "❌ Fehler beim Laden der Kunden:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Fehler beim Laden der Kunden:\n" + e.getMessage());
             return;
         }
 
@@ -52,7 +52,7 @@ public class KundenLogin {
                 int kundenId = Integer.parseInt(selected.split(" – ")[0]);
                 AuftragErstellen.zeige(kundenId);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "❌ Fehlerhafte Kundenauswahl.");
+                JOptionPane.showMessageDialog(null, "Fehlerhafte Kundenauswahl.");
             }
         }// Wenn der Nutzer auf OK klickt und einen gültigen Kunden ausgewählt hat,
     }

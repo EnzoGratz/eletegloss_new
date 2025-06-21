@@ -11,7 +11,7 @@ public class AdminBereich {
     private static DefaultListModel<String> pdfListModel = new DefaultListModel<>();
     // Datenmodelle für Tabellen und Listen
 
-    public static void zeige() {
+    public static void zeige() { 
         JFrame frame = new JFrame("EliteGloss – Adminbereich");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1000, 600);
@@ -65,7 +65,7 @@ public class AdminBereich {
 
         try (Connection conn = DBVerbindung.verbinde()) {
             if (conn == null) {
-                JOptionPane.showMessageDialog(null, "❌ Verbindung zur Datenbank fehlgeschlagen.");
+                JOptionPane.showMessageDialog(null, "Verbindung zur Datenbank fehlgeschlagen.");
                 return;
             }
 
@@ -104,7 +104,7 @@ public class AdminBereich {
             }
             //Zeigt an, wenn keine Aufträge in der Datenbank gefunden wurden
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "❌ Fehler beim Laden der Daten:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Fehler beim Laden der Daten:\n" + e.getMessage());
         }
     }
 
@@ -126,7 +126,7 @@ public class AdminBereich {
                 });
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "❌ Fehler bei der Filterung:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Fehler bei der Filterung:\n" + e.getMessage());
         }
     }
     // Zeigt an wenn ein Fehler beim Laden der Daten auftritt

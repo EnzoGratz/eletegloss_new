@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class KundenFormular {
 
     public static void zeige() {
-        while (true) {
+        while (true == true) {
             JTextField vorname = new JTextField();
             JTextField nachname = new JTextField();
             JTextField telefon = new JTextField();
@@ -51,11 +51,12 @@ public class KundenFormular {
             }
             // Hier wird überprüft, ob alle Felder ausgefüllt sind.
 
+            //Eigenes Pattern (Mit Hilfe von KI)
             if (!Pattern.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$", e)) {
                 JOptionPane.showMessageDialog(null, "📧 Ungültige E-Mail-Adresse.");
                 continue;
             }
-            // Hier wird überprüft, ob die E-Mail-Adresse dem Muster entspricht.
+            
             if (!Pattern.matches("^\\+?[\\d\\s/-]{5,}$", t)) {
                 JOptionPane.showMessageDialog(null, "📱 Ungültige Telefonnummer.");
                 continue;
@@ -79,7 +80,7 @@ public class KundenFormular {
                 break;
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "❌ Fehler beim Speichern:\n" + ex.getMessage());
+                JOptionPane.showMessageDialog(null, "Fehler beim Speichern:\n" + ex.getMessage());
             }
             // Hier werden die Fehler abgefangen, die beim Speichern in die Datenbank auftreten können.
         }

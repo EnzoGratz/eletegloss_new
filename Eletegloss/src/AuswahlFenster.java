@@ -8,13 +8,13 @@ public class AuswahlFenster {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}
 
-        // 🖼️ Logo
+        // Logo
         ImageIcon icon = null;
         try {
             icon = new ImageIcon("elitegloss_logo_placeholder.png");
         } catch (Exception ignored) {}
 
-        // 🌟 HTML-Nachricht
+        // HTML-Nachricht
         String nachricht = """
             <html>
                 <div style='text-align:center; font-family:SansSerif;'>
@@ -24,7 +24,7 @@ public class AuswahlFenster {
             </html>
             """;
 
-        // 🔘 Buttons mit Icons
+        // Buttons mit Icons
         Object[] optionen = {
                 "🧍‍♂️  Kunde",
                 "🆕  Neukunde",
@@ -42,7 +42,7 @@ public class AuswahlFenster {
                 optionen[0]
         );
 
-        // 🎯 Aktionen basierend auf Auswahl
+        // Aktionen basierend auf Auswahl
         switch (auswahl) {
             case 0 -> KundenLogin.zeige();
             case 1 -> KundenFormular.zeige();

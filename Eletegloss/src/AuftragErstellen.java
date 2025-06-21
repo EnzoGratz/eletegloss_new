@@ -7,7 +7,6 @@ import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 public class AuftragErstellen {
@@ -49,6 +48,29 @@ public class AuftragErstellen {
                 name = rs.getString("vorname");
                 nachname = rs.getString("nachname");
                 email = rs.getString("email");
+            }// DA die Bestelleung in die DB reinschreiben Insert into
+            String zusatzleistungenSTR = "";
+            zusatzleistungenSTR += motor.isSelected() ? "Motor, " : "";
+            zusatzleistungenSTR += innen.isSelected() ? "Innenreinigung, " : "";
+
+            if (zusatzleistungenSTR.endsWith(", ")) {
+                zusatzleistungenSTR = zusatzleistungenSTR.substring(0, zusatzleistungenSTR.length() - 2);
+            }
+
+            try {
+                stmt = conn.prepareStatement(
+                    "Insert into auftraege (kunde_id, paket, zusatzleistungen, datum, preis) values (?, ?, ?, ?, ?)"
+                );
+                stmt.setInt(1, kundenId);
+                stmt.setString(2, paket);
+                stmt.setString(3, zusatzleistungenSTR);
+                stmt.setDate(4, java.sql.Date.valueOf(LocalDate.now()));
+                stmt.setDouble(5, gesamt);
+                stmt.executeUpdate();
+
+            } catch (SQLException esql) {
+                esql.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Fehler beim Speichern:\n" + esql.getMessage());
             }
 
             // PDF starten

@@ -10,9 +10,8 @@ public class AdminLogin {
             if (eingabe.equals("admin123")) {
                 AdminBereich.zeige();
             } else {
-                JOptionPane.showMessageDialog(null, "❌ Falsches Passwort.");
+                JOptionPane.showMessageDialog(null, "Falsches Passwort.");
             }
         }
     }
 }
-// Normaler Admin Login damit man alles sieht
