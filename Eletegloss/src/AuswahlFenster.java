@@ -4,50 +4,57 @@ import java.awt.*;
 public class AuswahlFenster {
 
     public static void start() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
+        // System-Look übernehmen
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
+        catch (Exception ignored) {}
 
-        // Logo
-        ImageIcon icon = null;
-        try {
-            icon = new ImageIcon("elitegloss_logo_placeholder.png");
-        } catch (Exception ignored) {}
+        // Frame
+        JFrame f = new JFrame("EliteGloss – Zugang wählen");
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // HTML-Nachricht
-        String nachricht = """
-            <html>
-                <div style='text-align:center; font-family:SansSerif;'>
-                    <h2 style='color:#2E86C1; margin-bottom:5px;'>EliteGloss Zugang</h2>
-                    <p style='font-size:13px; color:#555555;'>Wähle deinen Zugang aus und starte durch.</p>
-                </div>
-            </html>
-            """;
+        // Layout & Rand
+        JPanel root = new JPanel(new GridBagLayout());
+        root.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20)); // gleichmäßiger Innenabstand
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.insets = new Insets(8, 0, 8, 0); // Abstand zwischen Zeilen
 
-        // Buttons mit Icons
-        Object[] optionen = {
-                "🧍‍♂️  Kunde",
-                "🆕  Neukunde",
-                "🔐  Admin"
-        };
+        // Logo (auf 160 px Breite skalieren)
+        ImageIcon raw = new ImageIcon("Logo.png");
+        Image     img = raw.getImage().getScaledInstance(160, -1, Image.SCALE_SMOOTH);
+        root.add(new JLabel(new ImageIcon(img)), gbc);
 
-        int auswahl = JOptionPane.showOptionDialog(
-                null,
-                nachricht,
-                "EliteGloss – Zugang wählen",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                icon,
-                optionen,
-                optionen[0]
-        );
+        // Titel
+        JLabel title = new JLabel("EliteGloss Zugang");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
+        gbc.gridy = 1;
+        root.add(title, gbc);
 
-        // Aktionen basierend auf Auswahl
-        switch (auswahl) {
-            case 0 -> KundenLogin.zeige();
-            case 1 -> KundenFormular.zeige();
-            case 2 -> AdminLogin.zeige();
-            default -> {} // Fenster geschlossen
-        }
+        // Unterzeile
+        JLabel sub = new JLabel("Wähle deinen Zugang aus");
+        sub.setFont(sub.getFont().deriveFont(12f));
+        gbc.gridy = 2;
+        root.add(sub, gbc);
+
+        //Buttons
+        Dimension btnSize = new Dimension(180, 32); // einheitliche Breite
+        JButton btnKunde    = new JButton("🧍‍♂️  Kunde");     btnKunde.setPreferredSize(btnSize);
+        JButton btnNeukunde = new JButton("🆕  Neukunde");   btnNeukunde.setPreferredSize(btnSize);
+        JButton btnAdmin    = new JButton("🔐  Admin");      btnAdmin.setPreferredSize(btnSize);
+
+        gbc.gridy = 3; root.add(btnKunde, gbc);
+        gbc.gridy = 4; root.add(btnNeukunde, gbc);
+        gbc.gridy = 5; root.add(btnAdmin, gbc);
+
+        //Aktionen
+        btnKunde.addActionListener(e -> { f.dispose(); KundenLogin.zeige();});
+        btnNeukunde.addActionListener(e -> { f.dispose(); KundenFormular.zeige();});
+        btnAdmin.addActionListener(e -> { f.dispose(); AdminLogin.zeige();});
+
+        //anzeigen
+        f.setContentPane(root);
+        f.pack();                 // berechnet perfekte Größe
+        f.setLocationRelativeTo(null); // zentriert
+        f.setVisible(true);
     }
 }

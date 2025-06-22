@@ -4,7 +4,8 @@ import java.awt.*;
 public class MainFenster {
 
     public static void main(String[] args) {
-        // System-Look & Feel
+        AuswahlFenster.start();
+        /*// System-Look & Feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}
@@ -93,7 +94,7 @@ public class MainFenster {
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setToolTipText(tooltip);
-        return btn;
+        return btn;*/
         // Ein Button wird erstellt. Er hat Text, Schriftart, Größe und Tooltip.
     }
 }

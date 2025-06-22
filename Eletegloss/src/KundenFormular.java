@@ -6,6 +6,10 @@ import java.util.regex.Pattern;
 
 public class KundenFormular {
 
+    private static void reopenMain() {
+            AuswahlFenster.start(); 
+        }
+
     public static void zeige() {
         while (true == true) {
             JTextField vorname = new JTextField();
@@ -32,7 +36,7 @@ public class KundenFormular {
             int auswahl = JOptionPane.showConfirmDialog(null, panel, "Neukunde registrieren",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-            if (auswahl != JOptionPane.OK_OPTION) break;
+            if (auswahl != JOptionPane.OK_OPTION) break; //verlasse die Aktuelle schleife hier
 
             // Eingaben einlesen & trimmen
             String v = vorname.getText().trim();
@@ -65,7 +69,7 @@ public class KundenFormular {
             Connection conn = DBVerbindung.verbinde();
             if (conn == null) {
                 JOptionPane.showMessageDialog(null, "❌ Verbindung zur Datenbank fehlgeschlagen.");
-                return;
+                return; //verlässt die gesammte Methode
             }
             // Verbindung zur Datenbank herstellen
             try {
@@ -77,12 +81,13 @@ public class KundenFormular {
                 stmt.setString(4, e);
                 stmt.executeUpdate();
                 JOptionPane.showMessageDialog(null, "✅ Kunde \"" + v + " " + n + "\" erfolgreich registriert.");
-                break;
+                break; //Verlasse die Aktuelle Schleife
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Fehler beim Speichern:\n" + ex.getMessage());
             }
             // Hier werden die Fehler abgefangen, die beim Speichern in die Datenbank auftreten können.
         }
+        reopenMain();
     }
 }

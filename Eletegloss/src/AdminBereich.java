@@ -41,6 +41,12 @@ public class AdminBereich {
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
 
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override public void windowClosed(java.awt.event.WindowEvent e) {
+            AuswahlFenster.start();// genau EIN Aufruf
+        }
+        });
+
         //Tabs 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("📋 Kunden",     new JScrollPane(new JTable(KUNDEN_MODEL)));

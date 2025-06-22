@@ -5,12 +5,17 @@ import java.awt.*;
 
 public class KundenLogin {
 
+    // Hauptfenster wieder anzeigen
+    private static void reopenMain() { 
+        AuswahlFenster.start(); 
+    }
+
     public static void zeige() {
         Connection conn = DBVerbindung.verbinde();
         if (conn == null) {
-            JOptionPane.showMessageDialog(null, "❌ Verbindung zur Datenbank fehlgeschlagen.");
             return;
         }
+
         // Lade Kunden aus der Datenbank
         // und zeige sie in einem Auswahlfeld an.
         DefaultComboBoxModel<String> kundenModel = new DefaultComboBoxModel<>();
@@ -55,5 +60,6 @@ public class KundenLogin {
                 JOptionPane.showMessageDialog(null, "Fehlerhafte Kundenauswahl.");
             }
         }// Wenn der Nutzer auf OK klickt und einen gültigen Kunden ausgewählt hat,
+        reopenMain();
     }
 }
