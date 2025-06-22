@@ -208,7 +208,7 @@ public class AuftragErstellen {
             doc.save(new File(filename));
             doc.close();
 
-            JOptionPane.showMessageDialog(null, "✅ PDF erstellt: " + filename);
+            JOptionPane.showMessageDialog(null, "PDF erstellt: " + filename);
 
         } catch (Exception e) {
             e.printStackTrace();

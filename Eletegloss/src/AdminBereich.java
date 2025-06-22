@@ -3,6 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 /**
  * Admin‑GUI für EliteGloss.
@@ -12,7 +14,7 @@ import java.sql.*;
  */
 public class AdminBereich {
 
-    /** Spalten für die Kundentabelle */
+    //ein gemeinsames Tabellen-Objekt; alle Fenster teilen sich dieselbe Datenquelle.
     private static final DefaultTableModel KUNDEN_MODEL = new DefaultTableModel(
             new String[]{"Vorname", "Nachname", "E‑Mail", "Telefon"}, 0) {
         @Override public boolean isCellEditable(int r, int c) {return false;}
@@ -24,26 +26,28 @@ public class AdminBereich {
         @Override public boolean isCellEditable(int r, int c) {return false;}
     };
 
-    /** Liste aller im Ordner gefundenen PDFs */
+    //nur eine PDF-Liste im ganzen Programm, statt pro Fenster neu.
     private static final DefaultListModel<String> PDF_LIST_MODEL = new DefaultListModel<>();
 
-    private AdminBereich() { /* Utility‑Klasse */ }
+    private AdminBereich() {
 
-    // ======================= GUI ======================= //
-
+    }
+    //Fenster öffnen ohne new AdminBereich()
+    //einfach AdminBereich.zeige()
     public static void zeige() {
         JFrame frame = new JFrame("EliteGloss – Adminbereich");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+        //Legt fest, was beim Schließen-Klick (X) passiert: Nur dieses Fenster wird „entsorgt“
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
 
-        /* Tabs */
+        //Tabs 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("📋 Kunden",     new JScrollPane(new JTable(KUNDEN_MODEL)));
-        tabs.addTab("🧾 Aufträge",    new JScrollPane(new JTable(AUFTRAG_MODEL)));
-        tabs.addTab("📄 PDFs",        new JScrollPane(new JList<>(PDF_LIST_MODEL)));
+        tabs.addTab("📋 Aufträge",    new JScrollPane(new JTable(AUFTRAG_MODEL)));
+        tabs.addTab("📋 PDFs",        new JScrollPane(new JList<>(PDF_LIST_MODEL)));
 
-        /* Filter */
+        // Filter Funktion
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JTextField datumField = new JTextField(10);
         JButton filterBtn = new JButton("Nach Datum filtern");
@@ -53,9 +57,9 @@ public class AdminBereich {
         filterPanel.add(filterBtn);
 
         frame.add(filterPanel, BorderLayout.NORTH);
-        frame.add(tabs,        BorderLayout.CENTER);
+        frame.add(tabs, BorderLayout.CENTER);
 
-        /* Daten initial laden */
+        // Daten laden
         ladeDaten();
         ladePDFs();
 
@@ -70,7 +74,7 @@ public class AdminBereich {
 
         try (Connection conn = DBVerbindung.verbinde()) {
             if (conn == null) {
-                JOptionPane.showMessageDialog(null, "❌ Verbindung zur Datenbank fehlgeschlagen.");
+                JOptionPane.showMessageDialog(null, "Verbindung zur Datenbank fehlgeschlagen.");
                 return; // Macht dann gar nicht weiter mit der Methode. Hört hier auf!
             }
 
@@ -98,6 +102,7 @@ public class AdminBereich {
                     "JOIN kunden k ON a.kunde_id = k.id " +
                     "ORDER BY a.datum DESC";
             try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+                //In der Klammer, damit das Statement gleich geschlossen wird.
                 while (rs.next()) {
                     String kundeName = rs.getString("vorname") + " " + rs.getString("nachname");
                     AUFTRAG_MODEL.addRow(new Object[]{
@@ -123,10 +128,17 @@ public class AdminBereich {
      * Lädt nur Aufträge eines bestimmten Datums (YYYY-MM-DD) in die Tabelle.
      */
     private static void ladeAuftraegeNachDatum(String datum) {
-        AUFTRAG_MODEL.setRowCount(0);
+        AUFTRAG_MODEL.setRowCount(0); // zuerst leeren
         if (datum.isBlank()) {
             ladeDaten(); // wenn leer => alles
             return;
+        }
+        LocalDate date; //Nur zum Checken angelegt
+        try {
+            date = LocalDate.parse(datum);
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(null,"Ungültiges Datum: "+ datum +"\nFormat: YYYY-MM-DD");
+            return; //frühzeitiger Ausstieg! Rest von ladeDaten() wird übersprungen
         }
 
         String sql = "SELECT k.vorname, k.nachname, a.datum, a.paket, a.zusatzleistungen, a.preis " +
