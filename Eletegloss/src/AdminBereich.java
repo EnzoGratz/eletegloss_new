@@ -174,14 +174,18 @@ public class AdminBereich {
         }
     }
 
-    /**
-     * Sucht alle PDF‑Dateien im aktuellen Verzeichnis und listet sie auf.
-     */
     private static void ladePDFs() {
-        PDF_LIST_MODEL.clear();
-        File[] pdfs = new File(".").listFiles((dir, name) -> name.toLowerCase().endsWith(".pdf"));
+
+        PDF_LIST_MODEL.clear();               // Liste leeren
+
+        File pdfDir = new File("PDFs");       // derselbe Ordner wie beim Speichern
+        File[] pdfs = pdfDir.listFiles(       // nur *.pdf Dateien
+                (dir, name) -> name.toLowerCase().endsWith(".pdf"));
+
         if (pdfs != null) {
-            for (File pdf : pdfs) PDF_LIST_MODEL.addElement(pdf.getName());
+            for (File pdf : pdfs) {
+                PDF_LIST_MODEL.addElement(pdf.getName()); // Dateiname in die Liste
+            }
         }
     }
 }

@@ -204,9 +204,14 @@ public class AuftragErstellen {
             content.close();
 
             // Speichern
+            File pdfDir = new File("PDFs");         // Unterordner-Objekt
+            pdfDir.mkdirs();                        // legt ihn an, falls noch nicht da
+
             String filename = "Rechnung_" + name + "_" + LocalDate.now() + ".pdf";
-            doc.save(new File(filename));
-            doc.close();
+            File ziel = new File(pdfDir, filename); // Datei = PDFs/Rechnung_...
+
+            doc.save(ziel);                         // PDF wirklich schreiben
+            doc.close();                            // Dokument schließen
 
             JOptionPane.showMessageDialog(null, "PDF erstellt: " + filename);
 
