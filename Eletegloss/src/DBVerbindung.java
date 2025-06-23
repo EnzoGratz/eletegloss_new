@@ -15,7 +15,7 @@ public class DBVerbindung {
             Connection conn = DriverManager.getConnection(URL, USER, PASS);
             return conn;
         } catch (Exception e) {
-            System.err.println("❌ Fehler bei der Datenbankverbindung:");
+            System.err.println("Fehler bei der Datenbankverbindung:");
             e.printStackTrace();
             return null;
         }

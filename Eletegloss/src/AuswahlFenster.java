@@ -38,7 +38,7 @@ public class AuswahlFenster {
 
         //Buttons
         Dimension btnSize = new Dimension(180, 32); // einheitliche Breite
-        JButton btnKunde    = new JButton("🧍‍♂️  Kunde");     btnKunde.setPreferredSize(btnSize);
+        JButton btnKunde    = new JButton("👤 Kunde");     btnKunde.setPreferredSize(btnSize);
         JButton btnNeukunde = new JButton("🆕  Neukunde");   btnNeukunde.setPreferredSize(btnSize);
         JButton btnAdmin    = new JButton("🔐  Admin");      btnAdmin.setPreferredSize(btnSize);
 
